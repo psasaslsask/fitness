@@ -68,6 +68,29 @@
         <div id="next_steps" class="panel-content placeholder">Awaiting input.</div>
       </article>
     </section>
+
+    <section class="secondary-grid">
+      <article class="card">
+        <div class="card-header">
+          <h3>User Profile</h3>
+          <button type="button" id="refresh-profile" class="ghost">Refresh</button>
+        </div>
+        <dl id="profile-details" class="description-list placeholder">
+          <div class="description-row">
+            <dt>Profile</dt>
+            <dd>Fetching baseline context…</dd>
+          </div>
+        </dl>
+      </article>
+
+      <article class="card">
+        <div class="card-header">
+          <h3>Recent Logs</h3>
+          <button type="button" id="refresh-logs" class="ghost">Refresh</button>
+        </div>
+        <div id="logs-list" class="logs placeholder">No history yet.</div>
+      </article>
+    </section>
   </main>
 
   <script src="/static/app.js"></script>
