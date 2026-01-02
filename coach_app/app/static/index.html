@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Local Fitness Coach</title>
+  <link rel="stylesheet" href="/static/styles.css" />
+</head>
+<body>
+  <header class="header">
+    <div class="title-group">
+      <h1>Local Fitness Coach</h1>
+      <p class="subtitle">Daily structured guidance — calm, supportive, consistent.</p>
+    </div>
+    <div class="status" id="status" aria-live="polite">Idle</div>
+  </header>
+
+  <main class="layout">
+    <section class="card">
+      <h2>Daily Input</h2>
+      <form id="daily-form" class="form">
+        <div class="field">
+          <label for="log_date">Date</label>
+          <input type="date" id="log_date" name="log_date" required />
+        </div>
+        <div class="field">
+          <label for="weight">Weight (lbs)</label>
+          <input type="number" id="weight" name="weight" step="0.1" inputmode="decimal" />
+        </div>
+        <div class="field">
+          <label for="activity">Activity</label>
+          <input type="text" id="activity" name="activity" placeholder="e.g., light walk, rest" />
+        </div>
+        <div class="field">
+          <label for="hunger_level">Hunger level (Low/Med/High)</label>
+          <input type="text" id="hunger_level" name="hunger_level" placeholder="e.g., Medium" />
+        </div>
+        <div class="field">
+          <label for="food_eaten">Food eaten</label>
+          <textarea id="food_eaten" name="food_eaten" rows="3" placeholder="Meals or key items"></textarea>
+        </div>
+        <div class="field">
+          <label for="planned_workout">Planned workout</label>
+          <textarea id="planned_workout" name="planned_workout" rows="3" placeholder="e.g., lower body, 90 min"></textarea>
+        </div>
+        <div class="actions">
+          <button type="submit" id="submit-btn">Submit</button>
+          <button type="button" id="reset-btn" class="secondary">Reset</button>
+        </div>
+      </form>
+    </section>
+
+    <section class="grid">
+      <article class="card">
+        <h3>Recommendation</h3>
+        <div id="recommendation" class="panel-content placeholder">Awaiting input.</div>
+      </article>
+      <article class="card">
+        <h3>Reasoning</h3>
+        <div id="reasoning" class="panel-content placeholder">Awaiting input.</div>
+      </article>
+      <article class="card">
+        <h3>Calorie Estimate</h3>
+        <div id="calorie_estimate" class="panel-content placeholder">Awaiting input.</div>
+      </article>
+      <article class="card">
+        <h3>Next Steps</h3>
+        <div id="next_steps" class="panel-content placeholder">Awaiting input.</div>
+      </article>
+    </section>
+  </main>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>

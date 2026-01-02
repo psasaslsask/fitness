@@ -27,4 +27,6 @@ The API seeds a default user profile and system prompt on startup. Primary endpo
 - `GET/PUT /system-prompt` – inspect or adjust the coaching system prompt.
 - `GET /logs` – retrieve stored daily logs, workouts, and meals.
 
+The local dashboard is served at `http://localhost:8000/` (static HTML/JS/CSS under `app/static`). Submit the daily form to `POST /coach`; responses render into four panels: recommendation, reasoning, calorie estimate, and next steps. Loading/error states are shown in the header status pill.
+
 FastAPI will expose interactive docs at `http://localhost:8000/docs` for quick testing. The SQLite database (`fitness.db`) lives next to the app by default and is created automatically on first run.
