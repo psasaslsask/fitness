@@ -1,7 +1,7 @@
 """Database session and initialization utilities."""
 
 from sqlmodel import Session, SQLModel, create_engine, select
-
+from typing import Generator
 from coach_app.app.core.config import get_settings
 from coach_app.app.db.models import SystemPrompt, UserProfile
 
@@ -51,7 +51,7 @@ def seed_defaults() -> None:
         session.commit()
 
 
-def get_session() -> Session:
+def get_session() -> Generator[Session, None, None]:
     """Yield a SQLModel session for FastAPI dependencies."""
     with Session(engine) as session:
         yield session
