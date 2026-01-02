@@ -1,6 +1,6 @@
 """Coach endpoint for generating daily recommendations."""
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException, status
 from sqlmodel import Session
 
 from coach_app.app.core.llm_client import LLMClient
@@ -18,7 +18,13 @@ async def coach(input: DailyInput, session: Session = Depends(get_session)) -> C
     messages = builder.build_messages(today_inputs=input.dict(), today=input.log_date)
 
     client = LLMClient()
-    llm_response = await client.chat(messages, temperature=0.25)
+    try:
+        llm_response = await client.chat(messages, temperature=0.25)
+    except Exception as exc:  # pragma: no cover - defensive
+        raise HTTPException(
+            status_code=status.HTTP_502_BAD_GATEWAY,
+            detail=f"LLM call failed: {exc}",
+        ) from exc
 
     log = DailyLog(
         log_date=input.log_date,

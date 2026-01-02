@@ -2,7 +2,7 @@
 
 from typing import List
 
-from pydantic_settings import BaseSettings
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
@@ -11,8 +11,7 @@ class Settings(BaseSettings):
     database_url: str = "sqlite:///./fitness.db"
     allowed_origins: List[str] = ["http://localhost:3000", "http://localhost:8000", "*"]
 
-    class Config:
-        env_file = ".env"
+    model_config = SettingsConfigDict(env_file=".env")
 
 
 def get_settings() -> Settings:

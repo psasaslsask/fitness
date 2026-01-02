@@ -1,5 +1,7 @@
 """Database session and initialization utilities."""
 
+from typing import Generator
+
 from sqlmodel import Session, SQLModel, create_engine, select
 from typing import Generator
 from coach_app.app.core.config import get_settings

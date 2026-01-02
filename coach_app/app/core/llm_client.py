@@ -1,9 +1,13 @@
 """Thin LLM client wrapper using an OpenAI-style chat completion API."""
 
+import json
 import os
 from typing import Any, Dict, List, Optional
 
 import httpx
+from pydantic import ValidationError
+
+from coach_app.app.schemas import RecommendationResponse
 
 API_URL = os.getenv("LLM_API_URL", "https://api.openai.com/v1/chat/completions")
 API_KEY = os.getenv("LLM_API_KEY")
@@ -17,13 +21,12 @@ class LLMClient:
 
     async def chat(self, messages: List[Dict[str, Any]], temperature: float = 0.2) -> Dict[str, Any]:
         if not self.api_key:
-            # Offline fallback for local dev without hitting the network
-            return {
-                "recommendation": "Strength train lower body today. Keep it to 90 minutes with controlled tempo squats and hip thrusts.",
-                "reasoning": "Maintains focus on legs/glutes while respecting recovery windows.",
-                "calorie_estimate": "Target ~1,950 kcal with 130g protein and front-load carbs pre-training.",
-                "next_steps": "Warm up, lift, log meals, hydrate. If hunger spikes tonight, add 150-200 kcal protein snack early.",
-            }
+            return RecommendationResponse(
+                recommendation="Strength train lower body today. Keep it to 90 minutes with controlled tempo squats and hip thrusts.",
+                reasoning="Maintains focus on legs/glutes while respecting recovery windows.",
+                calorie_estimate="Target ~1,950 kcal with 130g protein and front-load carbs pre-training.",
+                next_steps="Warm up, lift, log meals, hydrate. If hunger spikes tonight, add 150-200 kcal protein snack early.",
+            ).dict()
 
         headers = {"Authorization": f"Bearer {self.api_key}"}
         payload = {
@@ -38,5 +41,19 @@ class LLMClient:
             response.raise_for_status()
             data = response.json()
             content = data["choices"][0]["message"]["content"]
-            # Expecting the model to return structured JSON text
-            return httpx.Response(200, text=content).json()
+            parsed = self._coerce_json(content)
+            try:
+                return RecommendationResponse(**parsed).dict()
+            except ValidationError as exc:  # pragma: no cover - defensive
+                raise ValueError(f"LLM response failed validation: {exc}") from exc
+
+    @staticmethod
+    def _coerce_json(content: Any) -> Dict[str, Any]:
+        if isinstance(content, dict):
+            return content
+        if isinstance(content, str):
+            try:
+                return json.loads(content)
+            except json.JSONDecodeError as exc:  # pragma: no cover - defensive
+                raise ValueError("LLM did not return valid JSON") from exc
+        raise ValueError("Unsupported LLM response type")
