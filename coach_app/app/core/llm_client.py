@@ -1,0 +1,42 @@
+"""Thin LLM client wrapper using an OpenAI-style chat completion API."""
+
+import os
+from typing import Any, Dict, List, Optional
+
+import httpx
+
+API_URL = os.getenv("LLM_API_URL", "https://api.openai.com/v1/chat/completions")
+API_KEY = os.getenv("LLM_API_KEY")
+MODEL_NAME = os.getenv("LLM_MODEL", "gpt-4o-mini")
+
+
+class LLMClient:
+    def __init__(self, api_url: str = API_URL, api_key: Optional[str] = API_KEY):
+        self.api_url = api_url
+        self.api_key = api_key
+
+    async def chat(self, messages: List[Dict[str, Any]], temperature: float = 0.2) -> Dict[str, Any]:
+        if not self.api_key:
+            # Offline fallback for local dev without hitting the network
+            return {
+                "recommendation": "Strength train lower body today. Keep it to 90 minutes with controlled tempo squats and hip thrusts.",
+                "reasoning": "Maintains focus on legs/glutes while respecting recovery windows.",
+                "calorie_estimate": "Target ~1,950 kcal with 130g protein and front-load carbs pre-training.",
+                "next_steps": "Warm up, lift, log meals, hydrate. If hunger spikes tonight, add 150-200 kcal protein snack early.",
+            }
+
+        headers = {"Authorization": f"Bearer {self.api_key}"}
+        payload = {
+            "model": MODEL_NAME,
+            "messages": messages,
+            "temperature": temperature,
+            "response_format": {"type": "json_object"},
+        }
+
+        async with httpx.AsyncClient(timeout=30.0) as client:
+            response = await client.post(self.api_url, headers=headers, json=payload)
+            response.raise_for_status()
+            data = response.json()
+            content = data["choices"][0]["message"]["content"]
+            # Expecting the model to return structured JSON text
+            return httpx.Response(200, text=content).json()
