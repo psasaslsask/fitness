@@ -5,3 +5,7 @@ httpx>=0.24
 pydantic>=2.6
 pydantic-settings>=2.2
 python-dotenv>=1.0
+pydantic>=2.6
+pydantic-settings>=2.2
+sqlmodel>=0.0.16
+uvicorn[standard]
