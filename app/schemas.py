@@ -37,3 +37,8 @@ class ProfilePayload(BaseModel):
     menstrual_cycle_notes: str
     fueling_sensitivity: str
     reassurance_needs: str
+
+
+class SystemPromptPayload(BaseModel):
+    version: str = Field(description="Version label for the system prompt")
+    content: str = Field(description="Full system prompt text")

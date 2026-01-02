@@ -7,11 +7,11 @@ from fastapi import Depends, FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from sqlmodel import Session, select
 
-from app.database import get_session, init_db
+from app.database import get_session, init_db, seed_defaults
 from app.llm_client import LLMClient
 from app.models import DailyLog, SystemPrompt, UserProfile
 from app.prompting import PromptBuilder
-from app.schemas import CoachResponse, DailyInput, ProfilePayload
+from app.schemas import CoachResponse, DailyInput, ProfilePayload, SystemPromptPayload
 
 app = FastAPI(title="Local Fitness Coach", version="0.1.0")
 app.add_middleware(
@@ -26,6 +26,7 @@ app.add_middleware(
 @app.on_event("startup")
 def startup() -> None:
     init_db()
+    seed_defaults()
 
 
 @app.get("/profile", response_model=ProfilePayload)
@@ -99,21 +100,21 @@ async def coach(input: DailyInput, session: Session = Depends(get_session)) -> C
     )
 
 
-@app.get("/system-prompt")
-def get_system_prompt(session: Session = Depends(get_session)) -> SystemPrompt:
+@app.get("/system-prompt", response_model=SystemPromptPayload)
+def get_system_prompt(session: Session = Depends(get_session)) -> SystemPromptPayload:
     prompt_row = session.exec(select(SystemPrompt).order_by(SystemPrompt.id.desc())).first()
     if not prompt_row:
         raise HTTPException(status_code=404, detail="System prompt not set")
-    return prompt_row
+    return SystemPromptPayload(version=prompt_row.version, content=prompt_row.content)
 
 
-@app.put("/system-prompt")
-def update_system_prompt(version: str, content: str, session: Session = Depends(get_session)) -> SystemPrompt:
-    prompt_row = SystemPrompt(version=version, content=content)
+@app.put("/system-prompt", response_model=SystemPromptPayload)
+def update_system_prompt(payload: SystemPromptPayload, session: Session = Depends(get_session)) -> SystemPromptPayload:
+    prompt_row = SystemPrompt(version=payload.version, content=payload.content)
     session.add(prompt_row)
     session.commit()
     session.refresh(prompt_row)
-    return prompt_row
+    return SystemPromptPayload(version=prompt_row.version, content=prompt_row.content)
 
 
 @app.get("/health")
